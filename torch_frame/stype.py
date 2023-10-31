@@ -24,6 +24,7 @@ class stype(Enum):
     categorical = 'categorical'
     text_embedded = 'text_embedded'
     multicategorical = 'multicategorical'
+    time = 'time'
 
     @property
     def is_text_stype(self) -> bool:
@@ -41,3 +42,4 @@ numerical = stype('numerical')
 categorical = stype('categorical')
 text_embedded = stype('text_embedded')
 multicategorical = stype('multicategorical')
+time = stype('time')

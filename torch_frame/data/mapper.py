@@ -209,3 +209,47 @@ class TextEmbeddingTensorMapper(TensorMapper):
 
     def backward(self, tensor: Tensor) -> pd.Series:
         raise NotImplementedError
+
+
+class TimeTensorMapper(TensorMapper):
+    r"""Map any datetime64 series into int64 tensor. NaT(NaN) is handled 
+        by mapping to an default negative value (i.e.-9223372036854775808).
+
+    Args:
+        format (str): users have to provide the date format (i.e. "%Y-%m-%d") for recovering the
+                      the data in a desired format. Otherwise it will use default %Y-%m-%d format
+        utc (bool): true means localized the input to UTC
+        origin (str): set the reference date. For 'unix', it means 1970-01-01        
+    """
+    
+    def __init__(
+        self,
+        format: str,
+        utc : bool = True,
+        origin : str = 'unix',
+    ):
+        super().__init__()
+        self.format = format
+        self.utc = utc
+        self.origin = origin
+
+    def forward(
+        self,
+        ser: Series,
+        *,
+        device: Optional[torch.device] = None,
+    ) -> Tensor:
+        ser = pd.to_datetime(ser)
+        ser = ser.astype(int)
+        ser_list = ser.tolist()
+        return torch.LongTensor(ser_list).to(device)
+
+    def backward(self, tensor: Tensor) -> pd.Series:
+        data = tensor.cpu().numpy()
+        data = data.tolist()
+        time_data = pd.to_datetime(data, utc=self.utc, origin=self.origin)
+        str_time_list = time_data.strftime(self.format).astype(str).tolist() # convert back 
+        ser = pd.Series(str_time_list)
+        return ser
+
+
