@@ -1,5 +1,5 @@
 from .stype import (stype, numerical, categorical, text_embedded,
-                    multicategorical)
+                    multicategorical, time)
 from .data import TensorFrame
 from .typing import TaskType, DataFrame, NAStrategy
 from torch_frame.utils import save, load, cat  # noqa
